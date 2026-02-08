@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def run_custom_backtest(df, initial_capital=1000000, strategy_x=120, use_atr=False, atr_multiplier=3.0):
+def run_custom_backtest(df, initial_capital=1000000, strategy_x=150, use_atr=False, atr_multiplier=5.0):
     """
     進場固定 ATR stop
     - stop_dist 在「進場當根」固定 (使用 ATR_Prev * multiplier)，持倉期間不再變動
@@ -41,10 +41,10 @@ def run_custom_backtest(df, initial_capital=1000000, strategy_x=120, use_atr=Fal
     for row in df.itertuples():
         current_time = row.Index
 
-        # 0) 記錄權益（此簡化版不做持倉 MTM）
+        # 0) 記錄權益
         equity_curve.append({'Date': current_time, 'Equity': current_equity})
 
-        # 1) 強制平倉 (Time Exit) — 你原本規則保留
+        # 1) 強制平倉 (Time Exit)
         is_force_exit_time = (current_time.dayofweek == 1) and (15 <= current_time.day <= 21) and (current_time.hour == 13)
 
         if position != 0 and is_force_exit_time:
@@ -109,7 +109,7 @@ def run_custom_backtest(df, initial_capital=1000000, strategy_x=120, use_atr=Fal
                 else:
                     fixed_stop_dist = float(strategy_x)
 
-                # trailing extreme 初始化：用 entry_price 更一致、可 defend
+                # trailing extreme 初始化：用 entry_price
                 high_since_entry = float(entry_price)
                 low_since_entry = None
 
@@ -162,7 +162,7 @@ def run_custom_backtest(df, initial_capital=1000000, strategy_x=120, use_atr=Fal
 
                 # 觸發停損
                 if float(row.Low) <= stop_price:
-                    actual_exit_price = min(float(row.Open), round(stop_price))  # gap保守
+                    actual_exit_price = min(float(row.Open), round(stop_price))
 
                     raw_pnl = (actual_exit_price - entry_price) * 200
                     net_pnl = raw_pnl - (cost_per_trade * 2)
@@ -191,7 +191,7 @@ def run_custom_backtest(df, initial_capital=1000000, strategy_x=120, use_atr=Fal
                 stop_price = float(low_since_entry) + stop_dist
 
                 if float(row.High) >= stop_price:
-                    actual_exit_price = max(float(row.Open), round(stop_price))  # gap保守
+                    actual_exit_price = max(float(row.Open), round(stop_price))
 
                     raw_pnl = (entry_price - actual_exit_price) * 200
                     net_pnl = raw_pnl - (cost_per_trade * 2)
