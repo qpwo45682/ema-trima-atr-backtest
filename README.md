@@ -1,4 +1,4 @@
-# XMA/TRIMA + ATR Trailing Stop Backtest (TXF 60m)
+# XMA/TRIMA + ATR Trailing Stop Strategy
 
 This repository demonstrates an interview-ready quant research project:
 - **Entry**: EMA(21) crosses TRIMA(21) (signal confirmed at close, executed next open)
